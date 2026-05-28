@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #0D0D0D;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-hover: rgba(255,255,255,0.09);
+  --text-primary: #EDEDED;
+  --text-secondary: #8A8A8A;
+  --text-muted: #555555;
+  --jade-deep: #0A6B4A;
+  --jade-bright: #1A8A5E;
+  --jade-glow: rgba(26, 138, 94, 0.15);
+  --amber-bright: #C9A03C;
+  --amber-glow: rgba(201, 160, 60, 0.12);
+  --terracotta: #7A3028;
+  --terracotta-bright: #B84A3A;
+  --terracotta-glow: rgba(184, 74, 58, 0.12);
+  --teal: #1A6B5E;
+  --teal-bright: #2A9A7E;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.5);
+  --blur-bg: blur(20px);
+  --sidebar-width: 220px;
+}
+
+html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-deep); color: var(--text-primary); overflow: hidden; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+::selection { background: var(--jade-deep); color: white; }
+
+.app { display: flex; height: 100vh; }
+
+/* === SIDEBAR === */
+.sidebar {
+  width: var(--sidebar-width);
+  background: rgba(255,255,255,0.02);
+  border-right: 1px solid var(--border-subtle);
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.sidebar-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0 12px 24px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-logo svg { width: 20px; height: 20px; stroke: var(--jade-bright); }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+.nav-item.active { color: var(--text-primary); background: var(--bg-card); border-left: 2px solid var(--jade-bright); }
+.nav-item svg { width: 18px; height: 18px; stroke-width: 1.5; flex-shrink: 0; }
+
+/* === MAIN === */
+.main {
+  flex: 1;
+  padding: 32px 40px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.page-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+.page-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+
+/* === GLASS CARDS === */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-bg);
+  -webkit-backdrop-filter: var(--blur-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  transition: all 0.2s;
+}
+.card:hover { border-color: var(--border-hover); }
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title svg { width: 16px; height: 16px; }
+
+/* === BUTTONS === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: var(--blur-bg);
+  font-family: inherit;
+}
+.btn:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+.btn-primary { background: var(--jade-deep); border-color: var(--jade-deep); color: white; }
+.btn-primary:hover { background: var(--jade-bright); border-color: var(--jade-bright); }
+.btn-red { background: var(--terracotta); border-color: var(--terracotta); color: white; }
+.btn-red:hover { background: var(--terracotta-bright); border-color: var(--terracotta-bright); }
+.btn svg { width: 14px; height: 14px; }
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+
+/* === DASHBOARD === */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dashboard-grid .card:first-child { grid-column: 1 / -1; }
+.goal-progress { height: 4px; background: var(--border-subtle); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+.goal-progress-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; background: var(--jade-bright); }
+.goal-progress-bar.strategic { background: var(--terracotta-bright); }
+
+/* === TASK ITEMS === */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.task-item:last-child { border-bottom: none; }
+.task-item:hover { padding-left: 4px; }
+.task-check {
+  width: 16px; height: 16px;
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-check.done { background: var(--jade-bright); border-color: var(--jade-bright); }
+.task-check.done::after { content: ''; width: 6px; height: 3px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
+.task-text { flex: 1; font-size: 13px; }
+.task-text.done { text-decoration: line-through; color: var(--text-muted); }
+.task-board-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-work { background: rgba(26, 107, 94, 0.15); color: var(--teal); border: 1px solid rgba(26, 107, 94, 0.2); }
+.badge-personal { background: rgba(201, 160, 60, 0.15); color: var(--amber-bright); border: 1px solid rgba(201, 160, 60, 0.2); }
+.badge-strategic { background: rgba(184, 74, 58, 0.15); color: var(--terracotta-bright); border: 1px solid rgba(184, 74, 58, 0.2); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.status-new { background: var(--teal); }
+.status-in_progress { background: var(--jade-bright); }
+.status-review { background: var(--jade-bright); }
+.status-done { background: var(--text-muted); }
+.status-blocked { background: var(--terracotta-bright); }
+
+/* === BOARD / KANBAN === */
+.board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; min-height: 60vh; }
+.board-column {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.board-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
+}
+.board-column-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.board-column-title svg { width: 16px; height: 16px; }
+.board-column-count { font-size: 11px; color: var(--text-muted); background: var(--bg-card); padding: 2px 8px; border-radius: 100px; }
+.board-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: grab;
+  transition: all 0.2s;
+}
+.board-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+.board-card:active { cursor: grabbing; }
+.board-card-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.board-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.board-card-tag { font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 500; }
+
+/* === SUBTASKS === */
+.subtask-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.subtask-check { width: 12px; height: 12px; border: 1.5px solid var(--text-muted); border-radius: 50%; cursor: pointer; flex-shrink: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.subtask-check.done { background: var(--jade-bright); border-color: var(--jade-bright); }
+.subtask-check.done::after { content: ''; width: 5px; height: 2px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
+
+/* === CALENDAR === */
+.calendar-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.calendar-controls button { background: none; border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 6px 14px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; transition: all 0.2s; font-family: inherit; }
+.calendar-controls button:hover { background: var(--bg-card); border-color: var(--border-hover); }
+.calendar-controls button.active { background: var(--jade-deep); border-color: var(--jade-deep); }
+.calendar-controls .nav-arrows { display: flex; gap: 4px; }
+.calendar-controls .current-label { font-size: 16px; font-weight: 600; flex: 1; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar-day-header { text-align: center; font-size: 11px; color: var(--text-muted); text-transform: uppercase; padding: 8px 0; font-weight: 500; letter-spacing: 0.5px; }
+.calendar-day {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-card);
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 80px;
+}
+.calendar-day:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.calendar-day.other-month { opacity: 0.3; }
+.calendar-day.today { border-color: var(--jade-bright); }
+.calendar-day-number { font-size: 12px; font-weight: 500; }
+.calendar-day-event { font-size: 9px; padding: 1px 4px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.event-work { background: rgba(26, 107, 94, 0.15); color: var(--teal); }
+.event-personal { background: rgba(201, 160, 60, 0.15); color: var(--amber-bright); }
+.event-strategic { background: rgba(184, 74, 58, 0.15); color: var(--terracotta-bright); }
+
+/* === ANALYTICS === */
+.analytics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--bg-card); backdrop-filter: var(--blur-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.chart-container { background: var(--bg-card); backdrop-filter: var(--blur-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.6s ease; max-height: 100px; }
+.chart-bar-label { font-size: 9px; color: var(--text-muted); }
+.chart-distribution { display: flex; gap: 16px; align-items: center; }
+.donut { width: 120px; height: 120px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; }
+.donut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.donut-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* === GOALS === */
+.goals-grid { display: flex; flex-direction: column; gap: 12px; }
+.goal-card { background: var(--bg-card); backdrop-filter: var(--blur-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all 0.2s; }
+.goal-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.goal-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.goal-card-title { font-size: 14px; font-weight: 500; }
+.goal-level { font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.level-year { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.level-month { background: rgba(26, 138, 94, 0.1); color: var(--jade-bright); }
+.level-week { background: rgba(184, 74, 58, 0.1); color: var(--terracotta-bright); }
+
+/* === HABITS === */
+.habit-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.habit-item:last-child { border-bottom: none; }
+.habit-left { display: flex; align-items: center; gap: 10px; }
+.habit-name { font-size: 13px; }
+.habit-streak { font-size: 11px; color: var(--jade-bright); display: flex; align-items: center; gap: 4px; }
+.habit-streak svg { width: 12px; height: 12px; }
+.habit-dots { display: flex; gap: 4px; }
+.habit-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-subtle); transition: all 0.2s; }
+.habit-dot.filled { background: var(--jade-bright); }
+
+/* === NOTES === */
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.note-card { background: var(--bg-card); backdrop-filter: var(--blur-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all 0.2s; min-height: 100px; }
+.note-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.note-date { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+.note-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; white-space: pre-wrap; }
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #1A1A1D;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+  outline: none;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--jade-bright); background: rgba(255,255,255,0.08); }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-select { cursor: pointer; appearance: none; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* === EMPTY STATE === */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--text-muted); gap: 12px; }
+.empty-state svg { width: 32px; height: 32px; opacity: 0.3; }
+
+/* === STATUS TABS === */
+.status-tabs { display: flex; gap: 4px; margin-bottom: 16px; padding: 4px; background: var(--bg-card); border-radius: var(--radius-sm); width: fit-content; }
+.status-tab { padding: 6px 14px; border-radius: 6px; font-size: 11px; cursor: pointer; color: var(--text-secondary); border: none; background: none; font-family: inherit; transition: all 0.2s; font-weight: 500; }
+.status-tab:hover { color: var(--text-primary); }
+.status-tab.active { background: var(--jade-deep); color: white; }
+
+.project-tag { font-size: 10px; padding: 1px 6px; border-radius: 100px; background: rgba(255,255,255,0.05); color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
+.project-header { display: flex; align-items: center; gap: 6px; padding: 6px 4px 2px; margin-top: 4px; border-top: 1px solid var(--border-subtle); }
+.project-header:first-of-type { border-top: none; margin-top: 0; }
+.progress-thin { height: 3px; background: var(--border-subtle); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.progress-thin-bar { height: 100%; border-radius: 4px; background: var(--jade-bright); transition: width 0.4s ease; }
+
+@media (max-width: 900px) {
+  .sidebar { width: 56px; padding: 16px 8px; }
+  .sidebar-logo span, .nav-item span { display: none; }
+  .sidebar-logo { padding: 0 0 24px; justify-content: center; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .main { padding: 24px 20px; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .board { grid-template-columns: 1fr; }
+  .analytics-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <span>Focus</span>
+    </div>
+    <button class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Дашборд</span>
+    </button>
+    <button class="nav-item" data-page="board">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      <span>Доска</span>
+    </button>
+    <button class="nav-item" data-page="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+      <span>Календарь</span>
+    </button>
+    <button class="nav-item" data-page="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      <span>Аналитика</span>
+    </button>
+    <button class="nav-item" data-page="goals">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span>Цели</span>
+    </button>
+    <button class="nav-item" data-page="habits">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+      <span>Регулярные</span>
+    </button>
+    <button class="nav-item" data-page="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Заметки</span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <h1 class="page-title">Дашборд</h1>
+      <p class="page-subtitle">Фокус сегодня</p>
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              Фокус сегодня
+            </div>
+            <span style="font-size:20px;font-weight:700;color:var(--jade-bright);" id="focus-time-dash">0<span style="font-size:12px;color:var(--text-muted);font-weight:400;">ч</span></span>
+          </div>
+          <div id="today-tasks"></div>
+          <button class="btn btn-primary btn-sm" onclick="openTaskModal()" style="margin-top:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Задача
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Цель недели</div>
+            <button class="btn btn-sm" onclick="openGoalModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Новая
+            </button>
+          </div>
+          <div id="weekly-goal-dash" style="font-size:13px;color:var(--text-secondary);">Нет цели на эту неделю</div>
+          <div class="goal-progress" id="weekly-goal-bar-wrap" style="display:none;"><div class="goal-progress-bar" id="weekly-goal-bar" style="width:0%"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Привычки</div></div>
+          <div id="habits-dash"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Быстрая заметка</div></div>
+          <textarea class="form-textarea" id="quick-note-input" placeholder="Напишите что-то..." style="margin-bottom:8px;min-height:60px;"></textarea>
+          <button class="btn btn-sm btn-primary" onclick="saveQuickNote()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOARD -->
+    <div class="page" id="page-board">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <h1 class="page-title" style="margin-bottom:0;">Доска</h1>
+          <p class="page-subtitle" style="margin-bottom:0;">Работа · Личное · Стратегическое</p>
+        </div>
+        <button class="btn btn-primary" onclick="openTaskModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Новая задача
+        </button>
+      </div>
+      <div class="board" id="board-container"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="page" id="page-calendar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <h1 class="page-title" style="margin-bottom:0;">Календарь</h1>
+          <p class="page-subtitle" style="margin-bottom:0;">Неделя · Месяц · Год</p>
+        </div>
+        <button class="btn btn-primary" onclick="openTaskModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Событие
+        </button>
+      </div>
+      <div class="calendar-controls">
+        <div class="nav-arrows">
+          <button onclick="calendarNav(-1)">←</button>
+          <button onclick="calendarNav(1)">→</button>
+        </div>
+        <span class="current-label" id="calendar-label">Май 2026</span>
+        <div style="display:flex;gap:4px;">
+          <button class="active" data-view="month" onclick="switchCalendarView('month')">Месяц</button>
+          <button data-view="week" onclick="switchCalendarView('week')">Неделя</button>
+          <button data-view="year" onclick="switchCalendarView('year')">Год</button>
+        </div>
+      </div>
+      <div id="calendar-body"></div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <h1 class="page-title">Аналитика</h1>
+      <p class="page-subtitle">Продуктивность за период</p>
+      <div style="display:flex;gap:4px;margin-bottom:20px;">
+        <button class="status-tab active" data-period="week" onclick="switchAnalytics('week')">Неделя</button>
+        <button class="status-tab" data-period="month" onclick="switchAnalytics('month')">Месяц</button>
+        <button class="status-tab" data-period="year" onclick="switchAnalytics('year')">Год</button>
+        <button class="status-tab" data-period="all" onclick="switchAnalytics('all')">Всё время</button>
+      </div>
+      <div class="analytics-grid" id="analytics-stats"></div>
+      <div class="chart-container">
+        <div class="chart-title">Выполнено задач</div>
+        <div class="chart-bars" id="chart-bars"></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Распределение по доскам</div>
+        <div class="chart-distribution" id="chart-distribution"></div>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div class="page" id="page-goals">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <h1 class="page-title" style="margin-bottom:0;">Цели</h1>
+          <p class="page-subtitle" style="margin-bottom:0;">Год → Месяц → Неделя</p>
+        </div>
+        <button class="btn btn-primary" onclick="openGoalModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Новая цель
+        </button>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:16px;">
+        <button class="status-tab active" data-level="all" onclick="filterGoals('all')">Все</button>
+        <button class="status-tab" data-level="year" onclick="filterGoals('year')">Год</button>
+        <button class="status-tab" data-level="month" onclick="filterGoals('month')">Месяц</button>
+        <button class="status-tab" data-level="week" onclick="filterGoals('week')">Неделя</button>
+      </div>
+      <div class="goals-grid" id="goals-container"></div>
+    </div>
+
+    <!-- HABITS -->
+    <div class="page" id="page-habits">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <h1 class="page-title" style="margin-bottom:0;">Регулярные</h1>
+          <p class="page-subtitle" style="margin-bottom:0;">Привычки и повторяющиеся задачи</p>
+        </div>
+        <button class="btn btn-primary" onclick="openHabitModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Новая привычка
+        </button>
+      </div>
+      <div class="card">
+        <div id="habits-container"></div>
+        <div class="empty-state" id="habits-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <button class="btn btn-primary btn-sm" onclick="openHabitModal()">+ Добавить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="page" id="page-notes">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div>
+          <h1 class="page-title" style="margin-bottom:0;">Заметки</h1>
+          <p class="page-subtitle" style="margin-bottom:0;">Свободные мысли</p>
+        </div>
+        <button class="btn btn-primary" onclick="openNoteModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Заметка
+        </button>
+      </div>
+      <div class="notes-grid" id="notes-container"></div>
+      <div class="empty-state" id="notes-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <button class="btn btn-primary btn-sm" onclick="openNoteModal()">+ Создать</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ---- DATA STORE ----
+const Store = {
+  get(key, def) {
+    try { const d = localStorage.getItem('focus_' + key); return d ? JSON.parse(d) : def; } catch { return def; }
+  },
+  set(key, val) { localStorage.setItem('focus_' + key, JSON.stringify(val)); },
+  get tasks() { return this.get('tasks', []); },
+  set tasks(v) { this.set('tasks', v); },
+  get goals() { return this.get('goals', []); },
+  set goals(v) { this.set('goals', v); },
+  get habits() { return this.get('habits', []); },
+  set habits(v) { this.set('habits', v); },
+  get notes() { return this.get('notes', []); },
+  set notes(v) { this.set('notes', v); },
+  get projects() { return this.get('projects', []); },
+  set projects(v) { this.set('projects', v); }
+};
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const today = () => new Date().toISOString().slice(0, 10);
+const daysOfWeek = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const monthNamesShort = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const boardLabels = { work: 'Работа', personal: 'Личное', strategic: 'Стратегическое' };
+const statusLabels = { new: 'Новая', in_progress: 'В работе', review: 'На проверке', done: 'Готово', blocked: 'Блокировано' };
+
+function svgIcon(path, size) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:${size||14}px;height:${size||14}px;"><path d="${path}"/></svg>`;
+}
+
+const ICONS = {
+  work: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+  personal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+  strategic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
+};
+
+function boardBadge(board) {
+  return `<span class="task-board-badge badge-${board}">${boardLabels[board]}</span>`;
+}
+
+// ---- NAVIGATION ----
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-' + el.dataset.page).classList.add('active');
+  });
+});
+
+// ---- MODAL SYSTEM ----
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+// ---- TASK MODAL ----
+let editingTaskId = null;
+
+function openTaskModal(task) {
+  editingTaskId = task ? task.id : null;
+  const isEdit = !!task;
+  showModal(`
+    <div class="modal-title">${isEdit ? 'Редактировать' : 'Новая'} задачу</div>
+    <div class="form-group">
+      <label class="form-label">Название</label>
+      <input class="form-input" id="f-task-title" value="${isEdit ? escHtml(task.title) : ''}" placeholder="Что нужно сделать?">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Описание</label>
+      <textarea class="form-textarea" id="f-task-desc" placeholder="Подробности...">${isEdit ? escHtml(task.description || '') : ''}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Доска</label>
+      <select class="form-select" id="f-task-board">
+        <option value="work" ${isEdit && task.board === 'work' ? 'selected' : ''}>Работа</option>
+        <option value="personal" ${isEdit && task.board === 'personal' ? 'selected' : ''}>Личное</option>
+        <option value="strategic" ${isEdit && task.board === 'strategic' ? 'selected' : ''}>Стратегическое</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Проект</label>
+      <select class="form-select" id="f-task-project" onchange="document.getElementById('f-new-project-wrap').style.display=this.value==='__new__'?'block':'none'">
+        <option value="">Нет проекта</option>
+        ${Store.projects.filter(p => p.board === (isEdit ? task.board : 'work')).map(p => `<option value="${escHtml(p.name)}" ${isEdit && task.project === p.name ? 'selected' : ''}>${escHtml(p.name)}</option>`).join('')}
+        <option value="__new__">+ Новый проект</option>
+      </select>
+      <div id="f-new-project-wrap" style="display:none;margin-top:6px;">
+        <input class="form-input" id="f-new-project-name" placeholder="Название проекта">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select class="form-select" id="f-task-status">
+        <option value="new" ${isEdit && task.status === 'new' ? 'selected' : ''}>Новая</option>
+        <option value="in_progress" ${isEdit && task.status === 'in_progress' ? 'selected' : ''}>В работе</option>
+        <option value="review" ${isEdit && task.status === 'review' ? 'selected' : ''}>На проверке</option>
+        <option value="done" ${isEdit && task.status === 'done' ? 'selected' : ''}>Готово</option>
+        <option value="blocked" ${isEdit && task.status === 'blocked' ? 'selected' : ''}>Блокировано</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Дата</label>
+      <input class="form-input" type="date" id="f-task-date" value="${isEdit && task.dueDate ? task.dueDate : ''}">
+    </div>
+    <div class="form-group" style="border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+        <input type="checkbox" id="f-task-recurring" ${isEdit && task.recurring ? 'checked' : ''} onchange="document.getElementById('f-recurring-days').style.display=this.checked?'flex':'none'" style="accent-color:var(--jade-bright);width:16px;height:16px;">
+        Регулярная задача
+      </label>
+      <div id="f-recurring-days" style="display:${isEdit && task.recurring ? 'flex' : 'none'};gap:4px;margin-top:8px;flex-wrap:wrap;">
+        ${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'].map((d,i) =>
+          `<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer;padding:4px 8px;border:1px solid var(--border-subtle);border-radius:6px;background:var(--bg-card);">
+            <input type="checkbox" value="${i}" ${isEdit && task.recurringDays && task.recurringDays.includes(i) ? 'checked' : ''} style="accent-color:var(--jade-bright);width:14px;height:14px;">${d}
+          </label>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Подзадачи</label>
+      <div id="f-subtasks">
+        ${isEdit ? (task.subtasks||[]).map((s,i) =>
+          `<div style="display:flex;gap:8px;margin-bottom:4px;" data-sidx="${i}">
+            <input class="form-input" value="${escHtml(s.title)}" placeholder="Подзадача" style="flex:1;">
+            <button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>
+          </div>`
+        ).join('') : ''}
+      </div>
+      <button class="btn btn-sm" onclick="addSubtaskField()" style="margin-top:4px;">+ Подзадача</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveTask()">${isEdit ? 'Сохранить' : 'Создать'}</button>
+    </div>
+  `);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addSubtaskField() {
+  const container = document.getElementById('f-subtasks');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:4px;';
+  div.innerHTML = `<input class="form-input" placeholder="Подзадача" style="flex:1;"><button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>`;
+  container.appendChild(div);
+}
+
+function addGoalSubtaskField() {
+  const container = document.getElementById('f-goal-subtasks');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:4px;';
+  div.innerHTML = `<input class="form-input" placeholder="Подзадача" style="flex:1;"><button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>`;
+  container.appendChild(div);
+}
+
+function addHabitSubtaskField() {
+  const container = document.getElementById('f-habit-subtasks');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:4px;';
+  div.innerHTML = `<input class="form-input" placeholder="Подзадача" style="flex:1;"><button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>`;
+  container.appendChild(div);
+}
+
+function saveTask() {
+  const title = document.getElementById('f-task-title').value.trim();
+  if (!title) return;
+  const tasks = Store.tasks;
+  const subtaskEls = document.querySelectorAll('#f-subtasks > div');
+  const subtasks = Array.from(subtaskEls).map(el => {
+    const inp = el.querySelector('input');
+    return inp && inp.value.trim() ? { id: uid(), title: inp.value.trim(), done: false } : null;
+  }).filter(Boolean);
+
+  const projectSelect = document.getElementById('f-task-project');
+  let project = projectSelect.value;
+  if (project === '__new__') {
+    project = document.getElementById('f-new-project-name').value.trim();
+    if (project) {
+      const projects = Store.projects;
+      projects.push({ id: uid(), name: project, board: document.getElementById('f-task-board').value });
+      Store.projects = projects;
+    } else { project = ''; }
+  }
+
+  const recurring = document.getElementById('f-task-recurring').checked;
+  const recurringDays = recurring ? Array.from(document.querySelectorAll('#f-recurring-days input[type=checkbox]:checked')).map(cb => parseInt(cb.value)) : [];
+
+  if (editingTaskId) {
+    const t = tasks.find(t => t.id === editingTaskId);
+    if (t) {
+      t.title = title;
+      t.description = document.getElementById('f-task-desc').value.trim();
+      t.board = document.getElementById('f-task-board').value;
+      t.status = document.getElementById('f-task-status').value;
+      t.dueDate = document.getElementById('f-task-date').value || null;
+      t.subtasks = subtasks;
+      t.project = project;
+      t.recurring = recurring;
+      t.recurringDays = recurringDays.length > 0 ? recurringDays : [new Date().getDay()];
+    }
+  } else {
+    tasks.push({
+      id: uid(),
+      title,
+      description: document.getElementById('f-task-desc').value.trim(),
+      board: document.getElementById('f-task-board').value,
+      status: document.getElementById('f-task-status').value,
+      dueDate: document.getElementById('f-task-date').value || null,
+      createdAt: new Date().toISOString(),
+      subtasks,
+      tags: [],
+      project,
+      recurring,
+      recurringDays: recurringDays.length > 0 ? recurringDays : []
+    });
+  }
+  Store.tasks = tasks;
+  editingTaskId = null;
+  closeModal();
+  renderAll();
+}
+
+function toggleTask(id) {
+  const tasks = Store.tasks;
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  if (t.status === 'done') {
+    t.status = 'new';
+  } else {
+    t.status = 'done';
+    if (t.recurring && t.recurringDays && t.recurringDays.length > 0) {
+      // Auto-reset recurring task for the next occurrence
+      setTimeout(() => {
+        const refreshed = Store.tasks.find(x => x.id === id);
+        if (refreshed) {
+          refreshed.status = 'new';
+          // Set next due date to the next matching day
+          const todayDay = new Date().getDay();
+          const nextDays = refreshed.recurringDays.filter(d => d > todayDay).sort((a,b) => a-b);
+          if (nextDays.length > 0) {
+            const diff = nextDays[0] - todayDay;
+            const nextDate = new Date(); nextDate.setDate(nextDate.getDate() + diff);
+            refreshed.dueDate = nextDate.toISOString().slice(0,10);
+          } else {
+            // Next week
+            const diff = (7 - todayDay) + refreshed.recurringDays[0];
+            const nextDate = new Date(); nextDate.setDate(nextDate.getDate() + diff);
+            refreshed.dueDate = nextDate.toISOString().slice(0,10);
+          }
+          Store.tasks = Store.tasks;
+          renderAll();
+        }
+      }, 500);
+    }
+  }
+  Store.tasks = tasks;
+  renderAll();
+}
+
+function toggleSubtask(taskId, subId) {
+  const tasks = Store.tasks;
+  const t = tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const s = t.subtasks.find(x => x.id === subId);
+  if (s) { s.done = !s.done; Store.tasks = tasks; renderAll(); }
+}
+
+function deleteTask(id) {
+  if (!confirm('Удалить задачу?')) return;
+  Store.tasks = Store.tasks.filter(t => t.id !== id);
+  renderAll();
+}
+
+// ---- GOALS ----
+let editingGoalId = null;
+
+function openGoalModal(goal) {
+  editingGoalId = goal ? goal.id : null;
+  const isEdit = !!goal;
+  showModal(`
+    <div class="modal-title">${isEdit ? 'Редактировать' : 'Новая'} цель</div>
+    <div class="form-group">
+      <label class="form-label">Название</label>
+      <input class="form-input" id="f-goal-title" value="${isEdit ? escHtml(goal.title) : ''}" placeholder="Моя цель">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Уровень</label>
+      <select class="form-select" id="f-goal-level">
+        <option value="year" ${isEdit && goal.level === 'year' ? 'selected' : ''}>Год</option>
+        <option value="month" ${isEdit && goal.level === 'month' ? 'selected' : ''}>Месяц</option>
+        <option value="week" ${isEdit && goal.level === 'week' ? 'selected' : ''}>Неделя</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Цвет</label>
+      <select class="form-select" id="f-goal-color">
+        <option value="green">Зелёный</option>
+        <option value="red" ${isEdit && goal.accent === 'red' ? 'selected' : ''}>Красный</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Проект</label>
+      <select class="form-select" id="f-goal-project">
+        <option value="">Нет проекта</option>
+        ${Store.projects.map(p => `<option value="${escHtml(p.name)}" ${isEdit && goal.project === p.name ? 'selected' : ''}>${escHtml(p.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Подзадачи</label>
+      <div id="f-goal-subtasks">
+        ${isEdit ? (goal.subtasks||[]).map(s =>
+          `<div style="display:flex;gap:8px;margin-bottom:4px;">
+            <input class="form-input" value="${escHtml(s.title)}" placeholder="Подзадача" style="flex:1;">
+            <button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>
+          </div>`
+        ).join('') : ''}
+      </div>
+      <button class="btn btn-sm" onclick="addGoalSubtaskField()" style="margin-top:4px;">+ Подзадача</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveGoal()">${isEdit ? 'Сохранить' : 'Создать'}</button>
+    </div>
+  `);
+}
+
+function saveGoal() {
+  const title = document.getElementById('f-goal-title').value.trim();
+  if (!title) return;
+  const goals = Store.goals;
+  const project = document.getElementById('f-goal-project').value;
+  const subtaskEls = document.querySelectorAll('#f-goal-subtasks > div');
+  const subtasks = Array.from(subtaskEls).map(el => {
+    const inp = el.querySelector('input');
+    const done = el.querySelector('.subtask-check.done');
+    return inp && inp.value.trim() ? { id: uid(), title: inp.value.trim(), done: !!done } : null;
+  }).filter(Boolean);
+  const doneCount = subtasks.filter(s => s.done).length;
+  const progress = subtasks.length > 0 ? Math.round(doneCount / subtasks.length * 100) : 0;
+
+  if (editingGoalId) {
+    const g = goals.find(x => x.id === editingGoalId);
+    if (g) {
+      g.title = title;
+      g.level = document.getElementById('f-goal-level').value;
+      g.accent = document.getElementById('f-goal-color').value;
+      g.project = project;
+      g.subtasks = subtasks;
+      g.progress = progress;
+    }
+  } else {
+    goals.push({
+      id: uid(),
+      title,
+      level: document.getElementById('f-goal-level').value,
+      accent: document.getElementById('f-goal-color').value,
+      project,
+      subtasks,
+      progress,
+      createdAt: new Date().toISOString()
+    });
+  }
+  Store.goals = goals;
+  editingGoalId = null;
+  closeModal();
+  renderAll();
+}
+
+function toggleGoalSubtask(goalId, subId) {
+  const goals = Store.goals;
+  const g = goals.find(x => x.id === goalId);
+  if (!g) return;
+  const s = (g.subtasks || []).find(x => x.id === subId);
+  if (s) { s.done = !s.done; g.progress = g.subtasks.length > 0 ? Math.round(g.subtasks.filter(x => x.done).length / g.subtasks.length * 100) : 0; Store.goals = goals; renderAll(); }
+}
+
+function deleteGoal(id) {
+  if (!confirm('Удалить цель?')) return;
+  Store.goals = Store.goals.filter(g => g.id !== id);
+  renderAll();
+}
+
+let goalFilter = 'all';
+function filterGoals(level) {
+  goalFilter = level;
+  document.querySelectorAll('#page-goals .status-tab').forEach(t => t.classList.toggle('active', t.dataset.level === level));
+  renderGoals();
+}
+
+// ---- HABITS ----
+let editingHabitId = null;
+
+function openHabitModal(habit) {
+  editingHabitId = habit ? habit.id : null;
+  const isEdit = !!habit;
+  showModal(`
+    <div class="modal-title">${isEdit ? 'Редактировать' : 'Новая'} привычка</div>
+    <div class="form-group">
+      <label class="form-label">Название</label>
+      <input class="form-input" id="f-habit-title" value="${isEdit ? escHtml(habit.title) : ''}" placeholder="Например: зарядка">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Периодичность</label>
+      <select class="form-select" id="f-habit-freq">
+        <option value="daily" ${isEdit && habit.frequency === 'daily' ? 'selected' : ''}>Каждый день</option>
+        <option value="weekdays" ${isEdit && habit.frequency === 'weekdays' ? 'selected' : ''}>По будням</option>
+        <option value="weekly" ${isEdit && habit.frequency === 'weekly' ? 'selected' : ''}>Раз в неделю</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Проект</label>
+      <select class="form-select" id="f-habit-project">
+        <option value="">Нет проекта</option>
+        ${Store.projects.map(p => `<option value="${escHtml(p.name)}" ${isEdit && habit.project === p.name ? 'selected' : ''}>${escHtml(p.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Подзадачи</label>
+      <div id="f-habit-subtasks">
+        ${isEdit ? (habit.subtasks||[]).map(s =>
+          `<div style="display:flex;gap:8px;margin-bottom:4px;">
+            <input class="form-input" value="${escHtml(s.title)}" placeholder="Подзадача" style="flex:1;">
+            <button class="btn btn-sm" onclick="this.parentElement.remove()" style="color:var(--terracotta-bright);">✕</button>
+          </div>`
+        ).join('') : ''}
+      </div>
+      <button class="btn btn-sm" onclick="addHabitSubtaskField()" style="margin-top:4px;">+ Подзадача</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveHabit()">${isEdit ? 'Сохранить' : 'Создать'}</button>
+    </div>
+  `);
+}
+
+function saveHabit() {
+  const title = document.getElementById('f-habit-title').value.trim();
+  if (!title) return;
+  const habits = Store.habits;
+  const project = document.getElementById('f-habit-project').value;
+  const subtaskEls = document.querySelectorAll('#f-habit-subtasks > div');
+  const subtasks = Array.from(subtaskEls).map(el => {
+    const inp = el.querySelector('input');
+    return inp && inp.value.trim() ? { id: uid(), title: inp.value.trim(), done: false } : null;
+  }).filter(Boolean);
+
+  if (editingHabitId) {
+    const h = habits.find(x => x.id === editingHabitId);
+    if (h) { h.title = title; h.frequency = document.getElementById('f-habit-freq').value; h.project = project; h.subtasks = subtasks; }
+  } else {
+    habits.push({ id: uid(), title, frequency: document.getElementById('f-habit-freq').value, streak: 0, dates: [], createdAt: new Date().toISOString(), project, subtasks });
+  }
+  Store.habits = habits;
+  editingHabitId = null;
+  closeModal();
+  renderAll();
+}
+
+function toggleHabit(id) {
+  const habits = Store.habits;
+  const h = habits.find(x => x.id === id);
+  if (!h) return;
+  const d = today();
+  const idx = h.dates.indexOf(d);
+  if (idx > -1) h.dates.splice(idx, 1);
+  else h.dates.push(d);
+  h.streak = 0;
+  let date = new Date();
+  while (h.dates.includes(date.toISOString().slice(0,10))) { h.streak++; date.setDate(date.getDate() - 1); }
+  Store.habits = habits;
+  renderAll();
+}
+
+function toggleHabitSubtask(habitId, subId) {
+  const habits = Store.habits;
+  const h = habits.find(x => x.id === habitId);
+  if (!h || !h.subtasks) return;
+  const s = (h.subtasks || []).find(x => x.id === subId);
+  if (s) { s.done = !s.done; Store.habits = habits; renderAll(); }
+}
+
+function deleteHabit(id) {
+  if (!confirm('Удалить привычку?')) return;
+  Store.habits = Store.habits.filter(h => h.id !== id);
+  renderAll();
+}
+
+// ---- NOTES ----
+let editingNoteId = null;
+
+function openNoteModal(note) {
+  editingNoteId = note ? note.id : null;
+  const isEdit = !!note;
+  showModal(`
+    <div class="modal-title">${isEdit ? 'Редактировать' : 'Новая'} заметка</div>
+    <div class="form-group">
+      <textarea class="form-textarea" id="f-note-text" placeholder="Ваша заметка..." style="min-height:150px;">${isEdit ? escHtml(note.text) : ''}</textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveNote()">${isEdit ? 'Сохранить' : 'Создать'}</button>
+    </div>
+  `);
+}
+
+function saveNote() {
+  const text = document.getElementById('f-note-text').value.trim();
+  if (!text) return;
+  const notes = Store.notes;
+  if (editingNoteId) {
+    const n = notes.find(x => x.id === editingNoteId);
+    if (n) n.text = text;
+  } else {
+    notes.unshift({ id: uid(), text, createdAt: new Date().toISOString() });
+  }
+  Store.notes = notes;
+  editingNoteId = null;
+  closeModal();
+  renderAll();
+}
+
+function deleteNote(id) {
+  if (!confirm('Удалить заметку?')) return;
+  Store.notes = Store.notes.filter(n => n.id !== id);
+  renderAll();
+}
+
+function saveQuickNote() {
+  const text = document.getElementById('quick-note-input').value.trim();
+  if (!text) return;
+  Store.notes.unshift({ id: uid(), text, createdAt: new Date().toISOString() });
+  Store.notes = Store.notes;
+  document.getElementById('quick-note-input').value = '';
+  renderAll();
+}
+
+// ---- CALENDAR ----
+let calendarView = 'month';
+let calendarDate = new Date();
+
+function switchCalendarView(view) {
+  calendarView = view;
+  document.querySelectorAll('#page-calendar .calendar-controls button[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  renderCalendar();
+}
+
+function calendarNav(dir) {
+  if (calendarView === 'month') calendarDate.setMonth(calendarDate.getMonth() + dir);
+  else if (calendarView === 'week') calendarDate.setDate(calendarDate.getDate() + 7 * dir);
+  else if (calendarView === 'year') calendarDate.setFullYear(calendarDate.getFullYear() + dir);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const body = document.getElementById('calendar-body');
+  const label = document.getElementById('calendar-label');
+
+  if (calendarView === 'month') {
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
+    label.textContent = monthNames[month] + ' ' + year;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+    let html = '<div class="calendar-grid">';
+    daysOfWeek.forEach(d => { html += `<div class="calendar-day-header">${d}</div>`; });
+
+    for (let i = startOffset - 1; i >= 0; i--)
+      html += `<div class="calendar-day other-month"><div class="calendar-day-number">${daysInPrev - i}</div></div>`;
+
+    const tasks = Store.tasks.filter(t => t.dueDate);
+    const recurringTasks = Store.tasks.filter(t => t.recurring && t.recurringDays && t.recurringDays.length > 0);
+    const td = today();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const isToday = dateStr === td;
+      const dayOfWeek = new Date(year, month, d).getDay();
+      const dayTasks = tasks.filter(t => t.dueDate === dateStr);
+      const recurOnThisDay = recurringTasks.filter(t => t.recurringDays.includes(dayOfWeek));
+      const allDayTasks = [...dayTasks, ...recurOnThisDay.filter(rt => !dayTasks.find(dt => dt.id === rt.id))];
+      html += `<div class="calendar-day ${isToday ? 'today' : ''}" onclick="openTaskModal()">`;
+      html += `<div class="calendar-day-number">${d}</div>`;
+      allDayTasks.slice(0, 3).forEach(t => {
+        html += `<div class="calendar-day-event event-${t.board}">${escHtml(t.title)}</div>`;
+      });
+      if (allDayTasks.length > 3) html += `<div style="font-size:9px;color:var(--text-muted);">+${allDayTasks.length - 3}</div>`;
+      html += '</div>';
+    }
+
+    const remaining = 42 - (startOffset + daysInMonth);
+    for (let i = 1; i <= remaining; i++)
+      html += `<div class="calendar-day other-month"><div class="calendar-day-number">${i}</div></div>`;
+
+    html += '</div>';
+    body.innerHTML = html;
+
+  } else if (calendarView === 'week') {
+    const day = calendarDate.getDay();
+    const diff = calendarDate.getDate() - day + (day === 0 ? -6 : 1);
+    const weekStart = new Date(calendarDate.setDate(diff));
+    label.textContent = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+
+    let html = '<div class="calendar-grid">';
+    daysOfWeek.forEach(d => { html += `<div class="calendar-day-header">${d}</div>`; });
+    const tasks = Store.tasks.filter(t => t.dueDate);
+    const recurringTasks = Store.tasks.filter(t => t.recurring && t.recurringDays && t.recurringDays.length > 0);
+    const td = today();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const isToday = dateStr === td;
+      const dayOfWeek = d.getDay();
+      const dayTasks = tasks.filter(t => t.dueDate === dateStr);
+      const recurOnThisDay = recurringTasks.filter(t => t.recurringDays.includes(dayOfWeek));
+      const allDayTasks = [...dayTasks, ...recurOnThisDay.filter(rt => !dayTasks.find(dt => dt.id === rt.id))];
+      html += `<div class="calendar-day ${isToday ? 'today' : ''}" onclick="openTaskModal()">`;
+      html += `<div class="calendar-day-number">${d.getDate()}</div>`;
+      allDayTasks.slice(0, 3).forEach(t => {
+        html += `<div class="calendar-day-event event-${t.board}">${escHtml(t.title)}</div>`;
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    body.innerHTML = html;
+
+  } else if (calendarView === 'year') {
+    const year = calendarDate.getFullYear();
+    label.textContent = year;
+    let html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">';
+    for (let m = 0; m < 12; m++) {
+      const count = Store.tasks.filter(t => t.dueDate && t.dueDate.startsWith(year + '-' + String(m+1).padStart(2,'0'))).length;
+      html += `<div class="card" style="text-align:center;padding:16px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text-secondary);">${monthNamesShort[m]}</div>
+        <div style="font-size:20px;font-weight:700;">${count}</div>
+        <div style="font-size:10px;color:var(--text-muted);">задач</div>
+      </div>`;
+    }
+    html += '</div>';
+    body.innerHTML = html;
+  }
+}
+
+// ---- ANALYTICS ----
+let analyticsPeriod = 'week';
+
+function switchAnalytics(period) {
+  analyticsPeriod = period;
+  document.querySelectorAll('#page-analytics .status-tab').forEach(t => t.classList.toggle('active', t.dataset.period === period));
+  renderAnalytics();
+}
+
+function renderAnalytics() {
+  const tasks = Store.tasks;
+  const now = new Date();
+  let filtered = [];
+
+  if (analyticsPeriod === 'week') {
+    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+    filtered = tasks.filter(t => new Date(t.createdAt) >= weekAgo);
+  } else if (analyticsPeriod === 'month') {
+    const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+    filtered = tasks.filter(t => new Date(t.createdAt) >= monthAgo);
+  } else if (analyticsPeriod === 'year') {
+    const yearAgo = new Date(now); yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    filtered = tasks.filter(t => new Date(t.createdAt) >= yearAgo);
+  } else {
+    filtered = [...tasks];
+  }
+
+  const total = filtered.length;
+  const done = filtered.filter(t => t.status === 'done').length;
+  const inProgress = filtered.filter(t => t.status === 'in_progress').length;
+  const blocked = filtered.filter(t => t.status === 'blocked').length;
+  const compRate = total > 0 ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('analytics-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Всего задач</div></div>
+    <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Выполнено</div></div>
+    <div class="stat-card"><div class="stat-value">${compRate}%</div><div class="stat-label">Завершение</div></div>
+    <div class="stat-card"><div class="stat-value">${blocked}</div><div class="stat-label">Блокировано</div></div>
+  `;
+
+  // Bars
+  const barsContainer = document.getElementById('chart-bars');
+  if (filtered.length === 0) {
+    barsContainer.innerHTML = '<div class="empty-state" style="width:100%;">Нет данных</div>';
+  } else {
+    let labels = [], data = [];
+    if (analyticsPeriod === 'week' || analyticsPeriod === 'month') {
+      const days = analyticsPeriod === 'week' ? 7 : 30;
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now); d.setDate(d.getDate() - i);
+        const ds = d.toISOString().slice(0, 10);
+        labels.push(d.getDate().toString());
+        data.push(filtered.filter(t => t.createdAt.slice(0, 10) === ds && t.status === 'done').length);
+      }
+    } else if (analyticsPeriod === 'year') {
+      for (let i = 11; i >= 0; i--) {
+        const m = (now.getMonth() - i + 12) % 12;
+        const y = now.getFullYear() + (now.getMonth() - i < 0 ? -1 : 0);
+        const prefix = y + '-' + String(m+1).padStart(2,'0');
+        labels.push(monthNamesShort[m]);
+        data.push(filtered.filter(t => t.createdAt.slice(0, 7) === prefix && t.status === 'done').length);
+      }
+    } else {
+      for (let i = 0; i < 12; i++) {
+        const prefix = '2026-' + String(i+1).padStart(2,'0');
+        labels.push(monthNamesShort[i]);
+        data.push(filtered.filter(t => t.createdAt.slice(0, 7) === prefix && t.status === 'done').length);
+      }
+    }
+    const max = Math.max(...data, 1);
+    barsContainer.innerHTML = data.map((v, i) =>
+      `<div class="chart-bar-wrap">
+        <div class="chart-bar" style="height:${v/max*100}px;background:var(--jade-bright);"></div>
+        <div class="chart-bar-label">${labels[i]}</div>
+      </div>`
+    ).join('');
+  }
+
+  // Distribution donut
+  const dist = document.getElementById('chart-distribution');
+  const work = filtered.filter(t => t.board === 'work').length;
+  const personal = filtered.filter(t => t.board === 'personal').length;
+  const strategic = filtered.filter(t => t.board === 'strategic').length;
+  const totalDist = work + personal + strategic || 1;
+  const pWork = work / totalDist * 100;
+  const pPersonal = personal / totalDist * 100;
+  const pStrategic = strategic / totalDist * 100;
+  dist.innerHTML = `
+    <div class="donut" style="background:conic-gradient(var(--teal) 0% ${pWork}%, var(--amber-bright) ${pWork}% ${pWork+pPersonal}%, var(--terracotta-bright) ${pWork+pPersonal}% 100%);"></div>
+    <div class="donut-legend">
+      <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--teal);"></span>Работа &mdash; ${work}</div>
+      <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--amber-bright);"></span>Личное &mdash; ${personal}</div>
+      <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--terracotta-bright);"></span>Стратегическое &mdash; ${strategic}</div>
+    </div>
+  `;
+}
+
+// ---- BOARD ----
+function renderBoard() {
+  const container = document.getElementById('board-container');
+  const boards = ['work', 'personal', 'strategic'];
+  const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+  container.innerHTML = boards.map(board => {
+    const allTasks = Store.tasks.filter(t => t.board === board);
+    const projects = {};
+    allTasks.forEach(t => {
+      const p = t.project || '__no_project';
+      if (!projects[p]) projects[p] = [];
+      projects[p].push(t);
+    });
+    const projectKeys = Object.keys(projects).sort((a,b) => a === '__no_project' ? 1 : b === '__no_project' ? -1 : a.localeCompare(b));
+
+    function renderCard(t) {
+      const doneSubtasks = t.subtasks.filter(s => s.done).length;
+      const totalSubtasks = t.subtasks.length;
+      const recurringIcon = t.recurring ? `<svg viewBox="0 0 24 24" fill="none" stroke="var(--jade-bright)" stroke-width="1.5" style="width:12px;height:12px;flex-shrink:0;" title="Повтор: ${(t.recurringDays||[]).map(d=>dayNames[d]).join(', ')}"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M21 3v5h-5"/></svg>` : '';
+      return `
+        <div class="board-card" draggable="true" data-id="${t.id}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="board-card-title" onclick="toggleTask('${t.id}')" style="text-decoration:${t.status === 'done' ? 'line-through' : 'none'};color:${t.status === 'done' ? 'var(--text-muted)' : 'var(--text-primary)'};">${recurringIcon}${escHtml(t.title)}</div>
+            <span class="status-dot status-${t.status}" title="${statusLabels[t.status]}"></span>
+          </div>
+          ${t.description ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">${escHtml(t.description)}</div>` : ''}
+          ${totalSubtasks > 0 ? `
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">
+              ${t.subtasks.map(s => `<div class="subtask-item" onclick="toggleSubtask('${t.id}','${s.id}')"><div class="subtask-check ${s.done ? 'done' : ''}"></div>${escHtml(s.title)}</div>`).join('')}
+            </div>
+            <div class="progress-thin"><div class="progress-thin-bar" style="width:${Math.round(doneSubtasks/totalSubtasks*100)}%"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${doneSubtasks}/${totalSubtasks}</div>` : ''}
+          <div class="board-card-meta">
+            ${t.dueDate ? `<span style="font-size:10px;color:var(--text-muted);">${new Date(t.dueDate).toLocaleDateString('ru-RU', {day:'numeric',month:'short'})}</span>` : ''}
+            <span class="board-card-tag badge-${t.board}">${statusLabels[t.status]}</span>
+            <div style="margin-left:auto;display:flex;gap:4px;">
+              <button class="btn btn-sm" onclick="event.stopPropagation();openTaskModal(Store.tasks.find(x=>x.id==='${t.id}'))" style="padding:2px 6px;font-size:10px;color:var(--text-secondary);">✎</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();deleteTask('${t.id}')" style="padding:2px 6px;font-size:10px;color:var(--text-muted);">✕</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="board-column" data-board="${board}">
+        <div class="board-column-header">
+          <div class="board-column-title">${ICONS[board]}${boardLabels[board]}</div>
+          <span class="board-column-count">${allTasks.length}</span>
+        </div>
+        ${allTasks.length === 0 ? `
+          <div class="empty-state" style="padding:20px;">
+            <button class="btn btn-sm btn-primary" onclick="openTaskModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Добавить
+            </button>
+          </div>
+        ` : projectKeys.map(pk => {
+          const tasks = projects[pk];
+          const projectName = pk === '__no_project' ? null : pk;
+          return `
+            ${projectName ? `
+              <div class="project-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;color:var(--text-muted);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span style="font-size:11px;font-weight:500;color:var(--text-secondary);">${escHtml(projectName)}</span>
+                <span style="font-size:10px;color:var(--text-muted);">${tasks.length}</span>
+              </div>
+            ` : ''}
+            ${tasks.map(renderCard).join('')}
+          `;
+        }).join('')}
+      </div>`;
+  }).join('');
+
+  // Drag and drop
+  document.querySelectorAll('.board-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+      card.style.opacity = '0.4';
+    });
+    card.addEventListener('dragend', e => { card.style.opacity = '1'; });
+  });
+  document.querySelectorAll('.board-column').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.style.borderColor = 'var(--jade-bright)'; });
+    col.addEventListener('dragleave', () => { col.style.borderColor = 'var(--border-subtle)'; });
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.style.borderColor = 'var(--border-subtle)';
+      const id = e.dataTransfer.getData('text/plain');
+      const board = col.dataset.board;
+      const tasks = Store.tasks;
+      const t = tasks.find(x => x.id === id);
+      if (t && t.board !== board) { t.board = board; Store.tasks = tasks; renderAll(); }
+    });
+  });
+}
+
+// ---- GOALS LIST ----
+function renderGoals() {
+  const container = document.getElementById('goals-container');
+  let goals = Store.goals;
+  if (goalFilter !== 'all') goals = goals.filter(g => g.level === goalFilter);
+
+  if (goals.length === 0) {
+    container.innerHTML = '<div class="empty-state"><button class="btn btn-primary btn-sm" onclick="openGoalModal()">+ Создать цель</button></div>';
+    return;
+  }
+
+  const levelLabels = { year: 'Год', month: 'Месяц', week: 'Неделя' };
+  container.innerHTML = goals.map(g => {
+    const subs = g.subtasks || [];
+    const doneSubs = subs.filter(s => s.done).length;
+    const autoProgress = subs.length > 0 ? Math.round(doneSubs / subs.length * 100) : (g.progress || 0);
+    return `
+    <div class="goal-card" onclick="openGoalModal(Store.goals.find(x=>x.id==='${g.id}'))">
+      <div class="goal-card-header">
+        <span class="goal-card-title">${escHtml(g.title)}</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${g.project ? `<span class="project-tag">${escHtml(g.project)}</span>` : ''}
+          <span class="goal-level level-${g.level}">${levelLabels[g.level]}</span>
+        </div>
+      </div>
+      <div class="goal-progress">
+        <div class="goal-progress-bar ${g.accent === 'red' ? 'strategic' : ''}" style="width:${Math.min(autoProgress, 100)}%"></div>
+      </div>
+      ${subs.length > 0 ? `
+        <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
+          ${subs.map(s => `<div class="subtask-item" onclick="event.stopPropagation();toggleGoalSubtask('${g.id}','${s.id}')"><div class="subtask-check ${s.done ? 'done' : ''}"></div>${escHtml(s.title)}</div>`).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${doneSubs}/${subs.length}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ---- HABITS LIST ----
+function renderHabits() {
+  const container = document.getElementById('habits-container');
+  const empty = document.getElementById('habits-empty');
+  const habits = Store.habits;
+
+  if (habits.length === 0) { container.innerHTML = ''; empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+
+  const freqLabels = { daily: 'Каждый день', weekdays: 'По будням', weekly: 'Раз в неделю' };
+  container.innerHTML = habits.map(h => {
+    const done = h.dates.includes(today());
+    const last7 = [];
+    for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); last7.push(h.dates.includes(d.toISOString().slice(0,10))); }
+    const subs = h.subtasks || [];
+    const doneSubs = subs.filter(s => s.done).length;
+    return `
+      <div class="habit-item">
+        <div class="habit-left">
+          <div class="task-check ${done ? 'done' : ''}" onclick="toggleHabit('${h.id}')"></div>
+          <div>
+            <div class="habit-name">${escHtml(h.title)}</div>
+            <div style="font-size:10px;color:var(--text-muted);display:flex;gap:6px;align-items:center;">
+              ${freqLabels[h.frequency]}
+              ${h.project ? `<span class="project-tag">${escHtml(h.project)}</span>` : ''}
+            </div>
+            ${subs.length > 0 ? `
+              <div style="margin-top:2px;font-size:10px;color:var(--text-secondary);">
+                ${subs.map(s => `<span class="subtask-item" style="display:inline-flex;margin-right:8px;" onclick="toggleHabitSubtask('${h.id}','${s.id}')"><div class="subtask-check ${s.done ? 'done' : ''}" style="width:10px;height:10px;"></div>${escHtml(s.title)}</span>`).join('')}
+              </div>` : ''}
+          </div>
+        </div>
+        <div class="habit-streak">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          ${h.streak} дней
+        </div>
+        <div class="habit-dots">${last7.map(f => `<div class="habit-dot ${f ? 'filled' : ''}"></div>`).join('')}</div>
+        <button class="btn btn-sm" onclick="event.stopPropagation();openHabitModal(Store.habits.find(x=>x.id==='${h.id}'))" style="padding:2px 6px;font-size:10px;color:var(--text-secondary);">✎</button>
+        <button class="btn btn-sm" onclick="event.stopPropagation();deleteHabit('${h.id}')" style="padding:2px 6px;font-size:10px;color:var(--text-muted);">✕</button>
+      </div>`;
+  }).join('');
+}
+
+// ---- NOTES LIST ----
+function renderNotes() {
+  const container = document.getElementById('notes-container');
+  const empty = document.getElementById('notes-empty');
+  const notes = Store.notes;
+  if (notes.length === 0) { container.innerHTML = ''; empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+
+  container.innerHTML = notes.map(n => `
+    <div class="note-card" onclick="openNoteModal(Store.notes.find(x=>x.id==='${n.id}'))">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="note-date">${new Date(n.createdAt).toLocaleDateString('ru-RU', {day:'numeric',month:'short'})}</div>
+        <button class="btn btn-sm" onclick="event.stopPropagation();deleteNote('${n.id}')" style="padding:2px 6px;font-size:10px;color:var(--text-muted);">✕</button>
+      </div>
+      <div class="note-text">${n.text.length > 120 ? escHtml(n.text.slice(0,120)) + '...' : escHtml(n.text)}</div>
+    </div>
+  `).join('');
+}
+
+// ---- DASHBOARD ----
+function renderDashboard() {
+  // Today tasks
+  const todayTasks = Store.tasks.filter(t => t.dueDate === today());
+  const container = document.getElementById('today-tasks');
+  if (todayTasks.length === 0) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Нет задач на сегодня</div>';
+  } else {
+    container.innerHTML = todayTasks.slice(0, 5).map(t => `
+      <div class="task-item" onclick="toggleTask('${t.id}')">
+        <div class="task-check ${t.status === 'done' ? 'done' : ''}"></div>
+        <span class="task-text ${t.status === 'done' ? 'done' : ''}">${escHtml(t.title)}</span>
+        ${boardBadge(t.board)}
+      </div>`).join('');
+  }
+
+  // Weekly goal
+  const weekGoal = Store.goals.filter(g => g.level === 'week');
+  const goalEl = document.getElementById('weekly-goal-dash');
+  const goalBarWrap = document.getElementById('weekly-goal-bar-wrap');
+  const goalBar = document.getElementById('weekly-goal-bar');
+  if (weekGoal.length > 0) {
+    const g = weekGoal[0];
+    const subs = g.subtasks || [];
+    const doneSubs = subs.filter(s => s.done).length;
+    const autoProgress = subs.length > 0 ? Math.round(doneSubs / subs.length * 100) : (g.progress || 0);
+    goalEl.textContent = g.title;
+    goalBarWrap.style.display = 'block';
+    goalBar.style.width = Math.min(autoProgress, 100) + '%';
+    goalBar.className = 'goal-progress-bar' + (g.accent === 'red' ? ' strategic' : '');
+  } else {
+    goalEl.textContent = 'Нет цели на эту неделю';
+    goalBarWrap.style.display = 'none';
+  }
+
+  // Habits
+  const habits = Store.habits;
+  const habitsDash = document.getElementById('habits-dash');
+  if (habits.length === 0) {
+    habitsDash.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">Нет привычек</div>';
+  } else {
+    habitsDash.innerHTML = habits.map(h => {
+      const done = h.dates.includes(today());
+      return `<div class="task-item" onclick="toggleHabit('${h.id}')">
+        <div class="task-check ${done ? 'done' : ''}"></div>
+        <span class="task-text ${done ? 'done' : ''}" style="font-size:12px;">${escHtml(h.title)}</span>
+        <span style="font-size:11px;color:var(--jade-bright);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;vertical-align:middle;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          ${h.streak}
+        </span>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ---- RENDER ALL ----
+function renderAll() {
+  renderDashboard();
+  renderBoard();
+  renderGoals();
+  renderHabits();
+  renderNotes();
+  renderCalendar();
+  renderAnalytics();
+}
+
+// ---- DEMO DATA ----
+if (Store.tasks.length === 0 && Store.goals.length === 0 && Store.habits.length === 0) {
+  Store.projects = [
+    { id: uid(), name: 'Website Redesign', board: 'work' },
+    { id: uid(), name: 'Home Gym', board: 'personal' },
+    { id: uid(), name: 'Career Plan 2026', board: 'strategic' },
+    { id: uid(), name: 'Spanish Learning', board: 'personal' },
+  ];
+  Store.tasks = [
+    { id: uid(), title: 'Созвониться с командой по проекту', description: 'Обсудить roadmap', board: 'work', status: 'in_progress', dueDate: today(), createdAt: new Date().toISOString(), subtasks: [{ id: uid(), title: 'Подготовить презентацию', done: false }], tags: [], project: 'Website Redesign' },
+    { id: uid(), title: 'Купить продукты на неделю', description: '', board: 'personal', status: 'new', dueDate: today(), createdAt: new Date().toISOString(), subtasks: [], tags: [], project: '' },
+    { id: uid(), title: 'Написать план развития на год', description: 'Стратегическая сессия', board: 'strategic', status: 'new', dueDate: new Date(Date.now() + 86400000).toISOString().slice(0,10), createdAt: new Date().toISOString(), subtasks: [{ id: uid(), title: 'Определить цели', done: false }, { id: uid(), title: 'Разбить на кварталы', done: false }], tags: [], project: 'Career Plan 2026' },
+    { id: uid(), title: 'Пробежка 5 км', description: '', board: 'personal', status: 'done', dueDate: today(), createdAt: new Date().toISOString(), subtasks: [], tags: [], project: 'Home Gym' },
+    { id: uid(), title: 'Подготовить отчёт', description: 'Финансовый отчёт за месяц', board: 'work', status: 'new', dueDate: new Date(Date.now() + 2*86400000).toISOString().slice(0,10), createdAt: new Date().toISOString(), subtasks: [], tags: [], project: '' },
+    { id: uid(), title: 'Стендап с командой', description: 'Ежедневный утренний стендап', board: 'work', status: 'new', dueDate: today(), createdAt: new Date().toISOString(), subtasks: [], tags: [], project: 'Website Redesign', recurring: true, recurringDays: [1,2,3,4,5] },
+  ];
+  Store.goals = [
+    { id: uid(), title: 'Выучить испанский до B1', level: 'year', accent: 'green', progress: 0, createdAt: new Date().toISOString(), project: 'Spanish Learning', subtasks: [{ id: uid(), title: 'Duolingo до 50 юнита', done: true }, { id: uid(), title: '10 разговорных уроков', done: false }, { id: uid(), title: 'Прочитать книгу на испанском', done: false }] },
+    { id: uid(), title: 'Прочитать 3 книги', level: 'month', accent: 'green', progress: 0, createdAt: new Date().toISOString(), project: '', subtasks: [{ id: uid(), title: 'Книга 1: "Атомные привычки"', done: true }, { id: uid(), title: 'Книга 2: "Думай медленно"', done: false }, { id: uid(), title: 'Книга 3: "Sapiens"', done: false }] },
+    { id: uid(), title: 'Сделать прототип приложения', level: 'week', accent: 'red', progress: 0, createdAt: new Date().toISOString(), project: 'Website Redesign', subtasks: [{ id: uid(), title: 'Нарисовать вайрфреймы', done: true }, { id: uid(), title: 'Сверстать главный экран', done: false }] },
+  ];
+  Store.habits = [
+    { id: uid(), title: 'Зарядка', frequency: 'daily', streak: 5, dates: (()=>{const d=[];for(let i=0;i<5;i++){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10))}return d;})(), createdAt: new Date().toISOString(), project: 'Home Gym', subtasks: [{ id: uid(), title: 'Разминка', done: true }, { id: uid(), title: 'Силовая', done: false }] },
+    { id: uid(), title: 'Медитация', frequency: 'daily', streak: 3, dates: (()=>{const d=[];for(let i=0;i<3;i++){const dt=new Date();dt.setDate(dt.getDate()-i);d.push(dt.toISOString().slice(0,10))}return d;})(), createdAt: new Date().toISOString(), project: '', subtasks: [] },
+  ];
+  Store.notes = [
+    { id: uid(), text: 'Идея для приложения: трекер привычек с геймификацией. Можно добавить ачивки и уровни.', createdAt: new Date().toISOString() },
+    { id: uid(), text: 'Купить подарок маме на день рождения. Думаю, что-то связанное с йогой.', createdAt: new Date(Date.now() - 86400000).toISOString() },
+  ];
+}
+
+renderAll();
+</script>
+</body>
+</html>
